@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 require("dotenv").config();
 const port = 3000;
@@ -35,10 +35,39 @@ async function run() {
       res.send(result);
     });
 
+    // get all cars
     app.get("/cars", async (req, res) => {
       const cursor = carCollection.find();
       const result = await cursor.toArray();
-      res.send(result)
+      res.send(result);
+    });
+
+    // get specific cars
+    app.get("/cars/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await carCollection.findOne(query);
+      res.send(result);
+    });
+
+    // update cars
+    app.put("/cars/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const updatedCar = req.body;
+      const updateDoc = {
+        $set: updatedCar,
+      };
+      const result = await carCollection.updateOne(query, updateDoc);
+      res.send(result);
+    });
+
+    // delete cars
+    app.delete("/cars/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await carCollection.deleteOne(query);
+      req.send(result);
     });
     // Send a ping to confirm a successful connection
 
