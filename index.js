@@ -10,8 +10,7 @@ app.use(express.json());
 
 // mongodb connect
 
-const uri =
-  `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.rfkbq1n.mongodb.net/?appName=Cluster0`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.rfkbq1n.mongodb.net/?appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri, {
@@ -25,8 +24,24 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
+    const DB = client.db("RentACar");
+    const carCollection = DB.collection("cars");
     await client.connect();
+
+    // post data to mongoDB
+    app.post("/cars", async (req, res) => {
+      const query = req.body;
+      const result = await carCollection.insertOne(query);
+      res.send(result);
+    });
+
+    app.get("/cars", async (req, res) => {
+      const cursor = carCollection.find();
+      const result = await cursor.toArray();
+      res.send(result)
+    });
     // Send a ping to confirm a successful connection
+
     await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
@@ -39,7 +54,7 @@ async function run() {
 run().catch(console.dir);
 
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.send("Rent A Car Server Running!");
 });
 
 app.listen(port, () => {
