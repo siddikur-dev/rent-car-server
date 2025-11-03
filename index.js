@@ -50,6 +50,13 @@ async function run() {
       res.send(result);
     });
 
+    //get latest car by created time
+    app.get("/latest-car", async (req, res) => {
+      const query = carCollection.find().sort({ createdAt: -1 }).limit(6);
+      const result = await query.toArray();
+      res.send(result);
+    });
+
     // update cars
     app.put("/cars/:id", async (req, res) => {
       const id = req.params.id;
